@@ -1,0 +1,3856 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Makro FX</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:#050505;
+    color:white;
+    min-height:100vh;
+    overflow-x:hidden;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+#loadingScreen{
+    position:fixed;
+    inset:0;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:99999;
+    overflow:hidden;
+}
+
+#loadingScreen img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+}
+
+/* =========================
+   LOADING BAR (BARU)
+========================= */
+
+.loadingBarContainer{
+    position:absolute;
+    bottom:22%;
+    left:50%;
+    transform:translateX(-50%);
+    width:240px;
+    height:3px;
+    z-index:2;
+}
+
+.loadingBarTrack{
+    position:relative;
+    width:100%;
+    height:100%;
+    background:rgba(255,255,255,.12);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:
+        0 0 6px rgba(255,255,255,.5),
+        0 0 12px rgba(255,255,255,.25),
+        inset 0 0 4px rgba(255,255,255,.3);
+}
+
+.loadingBarFill{
+    position:absolute;
+    top:0;
+    left:0;
+    height:100%;
+    width:0%;
+    background:#39ff14;
+    border-radius:20px;
+    box-shadow:
+        0 0 6px #39ff14,
+        0 0 12px #39ff14,
+        0 0 20px #39ff14,
+        0 0 30px rgba(57,255,20,.6);
+    animation:loadFill 4s linear forwards;
+}
+
+/* Ujung depan garis hijau (glow dot) */
+.loadingBarFill::after{
+    content:"";
+    position:absolute;
+    right:-3px;
+    top:50%;
+    transform:translateY(-50%);
+    width:8px;
+    height:8px;
+    background:#fff;
+    border-radius:50%;
+    box-shadow:
+        0 0 6px #fff,
+        0 0 12px #39ff14,
+        0 0 18px #39ff14;
+}
+
+@keyframes loadFill{
+    0%{width:0%}
+    100%{width:100%}
+}
+
+/* =========================
+   AUTH
+========================= */
+
+#authPage{
+    min-height:100vh;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:
+        radial-gradient(circle at center,#0b260b 0%,#050505 50%,#000 100%);
+}
+
+.authBox{
+    width:100%;
+    max-width:390px;
+    background:#090909;
+    border:1px solid #39ff14;
+    box-shadow:
+        0 0 10px rgba(57,255,20,.5),
+        0 0 35px rgba(57,255,20,.12);
+    border-radius:18px;
+    padding:30px 25px;
+}
+
+.authLogo{
+    text-align:center;
+    font-size:40px;
+    font-weight:900;
+    color:white;
+    text-shadow:
+        0 0 8px #39ff14,
+        0 0 20px #39ff14;
+    margin-bottom:8px;
+}
+
+.authSubtitle{
+    text-align:center;
+    color:#39ff14;
+    font-size:12px;
+    letter-spacing:3px;
+    margin-bottom:28px;
+}
+
+.authTabs{
+    display:flex;
+    background:#111;
+    border-radius:10px;
+    padding:4px;
+    margin-bottom:20px;
+}
+
+.authTabs button{
+    width:50%;
+    border:none;
+    background:transparent;
+    color:#777;
+    padding:12px;
+    font-weight:bold;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.authTabs button.active{
+    background:#39ff14;
+    color:#000;
+    box-shadow:0 0 12px rgba(57,255,20,.5);
+}
+
+.authBox input{
+    width:100%;
+    padding:14px;
+    margin-bottom:13px;
+    background:#111;
+    color:white;
+    border:1px solid #222;
+    outline:none;
+    border-radius:9px;
+}
+
+.authBox input:focus{
+    border-color:#39ff14;
+    box-shadow:0 0 8px rgba(57,255,20,.2);
+}
+
+.authButton{
+    width:100%;
+    border:none;
+    padding:14px;
+    border-radius:9px;
+    background:#39ff14;
+    color:#000;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 0 15px rgba(57,255,20,.4);
+}
+
+.authMessage{
+    text-align:center;
+    font-size:12px;
+    margin-top:15px;
+    min-height:15px;
+}
+
+/* =========================
+   APP
+========================= */
+
+#app{
+    display:none;
+    min-height:100vh;
+    padding-bottom:90px;
+}
+
+header{
+    padding:22px 18px 16px;
+    border-bottom:1px solid #151515;
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(5,5,5,.95);
+    backdrop-filter:blur(12px);
+}
+
+.headerTop{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.brand{
+    font-size:25px;
+    font-weight:900;
+    color:white;
+    text-shadow:
+        0 0 6px #39ff14,
+        0 0 18px #39ff14;
+}
+
+.userName{
+    font-size:12px;
+    color:#39ff14;
+}
+
+.logoutBtn{
+    margin-top:7px;
+    background:none;
+    border:none;
+    color:#666;
+    font-size:11px;
+    cursor:pointer;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+main{
+    padding:18px;
+    max-width:1000px;
+    margin:auto;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+.pageTitle{
+    font-size:25px;
+    font-weight:900;
+    margin-bottom:18px;
+}
+
+.pageTitle span{
+    color:#39ff14;
+    text-shadow:0 0 10px rgba(57,255,20,.7);
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.statsGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.statCard{
+    background:#0b0b0b;
+    border:1px solid #191919;
+    border-radius:12px;
+    padding:15px;
+    min-height:85px;
+}
+
+.statLabel{
+    font-size:10px;
+    color:#777;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.statValue{
+    font-size:19px;
+    font-weight:900;
+    margin-top:8px;
+    color:#fff;
+    word-break:break-word;
+}
+
+.green{
+    color:#39ff14!important;
+    text-shadow:0 0 8px rgba(57,255,20,.5);
+}
+
+/* =========================
+   CHARTS
+========================= */
+
+.chartGrid{
+    display:grid;
+    grid-template-columns:1.4fr .8fr;
+    gap:15px;
+    margin-bottom:15px;
+}
+
+.chartBox{
+    background:#0a0a0a;
+    border:1px solid #191919;
+    border-radius:14px;
+    padding:15px;
+    min-height:270px;
+}
+
+.chartBox canvas{
+    width:100%;
+    height:230px;
+}
+
+.ratioArea{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:230px;
+    position:relative;
+}
+
+.ratioCanvas{
+    width:180px!important;
+    height:180px!important;
+}
+
+.ratioText{
+    position:absolute;
+    text-align:center;
+}
+
+.ratioText strong{
+    display:block;
+    font-size:27px;
+}
+
+.ratioText span{
+    color:#39ff14;
+    font-size:11px;
+    letter-spacing:1px;
+}
+
+/* =========================
+   PROGRESS
+========================= */
+
+.sectionBox{
+    background:#0a0a0a;
+    border:1px solid #191919;
+    border-radius:14px;
+    padding:17px;
+    margin-bottom:15px;
+}
+
+.sectionHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.sectionHeader h3{
+    font-size:15px;
+}
+
+.sectionHeader span{
+    color:#39ff14;
+    font-size:11px;
+}
+
+.progressChart{
+    height:190px;
+}
+
+.progressChart canvas{
+    width:100%;
+    height:190px;
+}
+
+/* =========================
+   JOURNAL
+========================= */
+
+.primaryButton{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:11px;
+    background:#39ff14;
+    color:#000;
+    font-weight:900;
+    font-size:14px;
+    cursor:pointer;
+    box-shadow:0 0 18px rgba(57,255,20,.35);
+    margin-bottom:15px;
+}
+
+.primaryButton:active{
+    transform:scale(.98);
+}
+
+.journalList{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.journalCard{
+    background:#0a0a0a;
+    border:1px solid #181818;
+    border-radius:13px;
+    padding:15px;
+}
+
+.journalTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.journalPair{
+    font-weight:900;
+}
+
+.journalDate{
+    font-size:10px;
+    color:#666;
+}
+
+.journalInfo{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+}
+
+.journalInfo div{
+    background:#101010;
+    padding:8px;
+    border-radius:7px;
+    font-size:11px;
+}
+
+.journalInfo span{
+    color:#666;
+    display:block;
+    margin-bottom:3px;
+}
+
+.deleteJournal{
+    width:100%;
+    margin-top:10px;
+    padding:9px;
+    background:#111;
+    border:1px solid #292929;
+    color:#ff5757;
+    border-radius:7px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+/* =========================
+   WALLET
+========================= */
+
+.walletHero{
+    background:
+        radial-gradient(circle at top right,#0b3b0b,#090909 55%);
+    border:1px solid #39ff14;
+    box-shadow:0 0 25px rgba(57,255,20,.1);
+    border-radius:17px;
+    padding:22px;
+    margin-bottom:15px;
+}
+
+.currencyLabel{
+    color:#777;
+    font-size:11px;
+}
+
+.walletBalance{
+    font-size:35px;
+    font-weight:900;
+    margin-top:7px;
+    word-break:break-word;
+}
+
+.walletCurrency{
+    color:#39ff14;
+    font-size:12px;
+    margin-top:4px;
+}
+
+.walletButtons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:20px;
+}
+
+.walletButtons button{
+    padding:13px;
+    border-radius:9px;
+    cursor:pointer;
+    font-weight:900;
+}
+
+.depositBtn{
+    background:#39ff14;
+    color:#000;
+    border:1px solid #39ff14;
+}
+
+.withdrawBtn{
+    background:#0b0b0b;
+    color:#39ff14;
+    border:1px solid #39ff14;
+}
+
+/* =========================
+   CURRENCY
+========================= */
+
+.currencyButton{
+    width:100%;
+    padding:14px;
+    background:#0b0b0b;
+    border:1px solid #39ff14;
+    color:white;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-bottom:15px;
+}
+
+.currencyButton span{
+    color:#39ff14;
+}
+
+/* =========================
+   ACCOUNT GROWTH
+========================= */
+
+.growthPercent{
+    font-size:43px;
+    font-weight:900;
+    color:#39ff14;
+    text-shadow:
+        0 0 8px #39ff14,
+        0 0 20px #39ff14;
+}
+
+.growthBar{
+    height:9px;
+    background:#151515;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:15px;
+}
+
+.growthBar span{
+    display:block;
+    height:100%;
+    width:0%;
+    background:#39ff14;
+    box-shadow:0 0 12px #39ff14;
+    transition:.5s;
+}
+
+.tierName{
+    margin-top:12px;
+    font-size:15px;
+    font-weight:bold;
+}
+
+.tierDescription{
+    color:#777;
+    font-size:11px;
+    margin-top:5px;
+}
+
+/* =========================
+   BOTTOM NAV
+========================= */
+
+.bottomNav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    height:72px;
+    background:rgba(5,5,5,.97);
+    border-top:1px solid #191919;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    z-index:200;
+    backdrop-filter:blur(10px);
+}
+
+.navButton{
+    border:none;
+    background:transparent;
+    color:#555;
+    cursor:pointer;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.navIcon{
+    display:block;
+    font-size:20px;
+    margin-bottom:5px;
+}
+
+.navButton.active{
+    color:#39ff14;
+    text-shadow:0 0 10px #39ff14;
+}
+
+/* =========================
+   POPUP
+========================= */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.82);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modalBox{
+    width:100%;
+    max-width:470px;
+    max-height:90vh;
+    overflow-y:auto;
+    background:#070707;
+    border:1px solid #39ff14;
+    border-radius:17px;
+    box-shadow:
+        0 0 12px rgba(57,255,20,.55),
+        0 0 50px rgba(57,255,20,.13);
+    padding:21px;
+    animation:popup .2s ease;
+}
+
+@keyframes popup{
+    from{
+        opacity:0;
+        transform:scale(.93);
+    }
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+}
+
+.modalTitle{
+    font-size:21px;
+    font-weight:900;
+    margin-bottom:18px;
+    color:white;
+}
+
+.modalTitle span{
+    color:#39ff14;
+}
+
+.formGroup{
+    margin-bottom:13px;
+}
+
+.formGroup label{
+    display:block;
+    font-size:10px;
+    color:#777;
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.formGroup input,
+.formGroup select{
+    width:100%;
+    padding:12px;
+    background:#111;
+    border:1px solid #242424;
+    color:white;
+    outline:none;
+    border-radius:8px;
+}
+
+.formGroup input:focus,
+.formGroup select:focus{
+    border-color:#39ff14;
+    box-shadow:0 0 8px rgba(57,255,20,.2);
+}
+
+.formRow{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.requiredChoice{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+}
+
+.choiceBtn{
+    padding:9px;
+    background:#111;
+    border:1px solid #252525;
+    color:#777;
+    border-radius:7px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.choiceBtn.selected{
+    background:#39ff14;
+    border-color:#39ff14;
+    color:#000;
+    box-shadow:0 0 10px rgba(57,255,20,.3);
+}
+
+.modalActions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:18px;
+}
+
+.modalActions button{
+    padding:13px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:900;
+}
+
+.cancelBtn{
+    background:#111;
+    border:1px solid #333;
+    color:#aaa;
+}
+
+.confirmBtn{
+    background:#39ff14;
+    color:#000;
+    border:1px solid #39ff14;
+}
+
+/* =========================
+   CURRENCY POPUP
+========================= */
+
+.currencyList{
+    display:grid;
+    gap:8px;
+}
+
+.currencyOption{
+    width:100%;
+    background:#0d0d0d;
+    color:white;
+    border:1px solid #222;
+    padding:13px;
+    border-radius:9px;
+    text-align:left;
+    cursor:pointer;
+}
+
+.currencyOption:hover{
+    border-color:#39ff14;
+}
+
+.currencyOption strong{
+    color:#39ff14;
+    margin-right:7px;
+}
+
+/* =========================
+   LEVEL UP POPUP
+========================= */
+
+.levelModal .modalBox{
+    text-align:center;
+    padding:35px 20px;
+}
+
+.levelTitle{
+    font-size:32px;
+    font-weight:900;
+    color:white;
+    text-shadow:
+        0 0 7px #39ff14,
+        0 0 20px #39ff14,
+        0 0 35px #39ff14;
+    margin-bottom:13px;
+}
+
+.levelMessage{
+    color:#fff;
+    line-height:1.5;
+    font-size:14px;
+}
+
+.levelTier{
+    color:#39ff14;
+    font-size:18px;
+    font-weight:900;
+    margin-top:10px;
+}
+
+.closeLevel{
+    margin-top:22px;
+    width:100%;
+    padding:13px;
+    background:#39ff14;
+    color:#000;
+    border:none;
+    border-radius:9px;
+    font-weight:900;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty{
+    text-align:center;
+    padding:35px 15px;
+    color:#555;
+    border:1px dashed #222;
+    border-radius:12px;
+}
+
+.empty strong{
+    display:block;
+    color:#777;
+    margin-bottom:5px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:650px){
+
+    .statsGrid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .chartGrid{
+        grid-template-columns:1fr;
+    }
+
+    .walletBalance{
+        font-size:29px;
+    }
+
+    .loadingBarContainer{
+        width:200px;
+        bottom:18%;
+    }
+}
+
+@media(max-width:380px){
+
+    main{
+        padding:13px;
+    }
+
+    .statsGrid{
+        grid-template-columns:1fr;
+    }
+
+    .formRow{
+        grid-template-columns:1fr;
+    }
+
+    .loadingBarContainer{
+        width:180px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     LOADING
+========================= -->
+
+<div id="loadingScreen">
+    <img src="Makrofx.png" alt="Makro FX Loading">
+
+    <!-- Loading Bar Baru -->
+    <div class="loadingBarContainer">
+        <div class="loadingBarTrack">
+            <div class="loadingBarFill"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- =========================
+     AUTH
+========================= -->
+
+<div id="authPage">
+
+    <div class="authBox">
+
+        <div class="authLogo">Makro FX</div>
+
+        <div class="authSubtitle">
+            TRADING • PORTFOLIO • GROWTH
+        </div>
+
+        <div class="authTabs">
+            <button id="loginTab"
+                    class="active"
+                    onclick="showAuth('login')">
+                Sign In
+            </button>
+
+            <button id="signupTab"
+                    onclick="showAuth('signup')">
+                Sign Up
+            </button>
+        </div>
+
+        <div id="loginForm">
+
+            <input
+                id="loginUsername"
+                type="text"
+                placeholder="Username">
+
+            <input
+                id="loginPassword"
+                type="password"
+                placeholder="Password">
+
+            <button
+                class="authButton"
+                onclick="login()">
+                SIGN IN
+            </button>
+
+        </div>
+
+        <div id="signupForm" style="display:none">
+
+            <input
+                id="signupUsername"
+                type="text"
+                placeholder="Username">
+
+            <input
+                id="signupPassword"
+                type="password"
+                placeholder="Password">
+
+            <input
+                id="signupPassword2"
+                type="password"
+                placeholder="Confirm Password">
+
+            <button
+                class="authButton"
+                onclick="signup()">
+                CREATE ACCOUNT
+            </button>
+
+        </div>
+
+        <div
+            id="authMessage"
+            class="authMessage">
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     APPLICATION
+========================= -->
+
+<div id="app">
+
+<header>
+
+    <div class="headerTop">
+
+        <div class="brand">
+            Makro FX
+        </div>
+
+        <div style="text-align:right">
+
+            <div
+                id="headerUsername"
+                class="userName">
+                User
+            </div>
+
+            <button
+                class="logoutBtn"
+                onclick="logout()">
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<!-- =========================
+     PORTFOLIO
+========================= -->
+
+<section
+    id="portfolioPage"
+    class="page active">
+
+    <div class="pageTitle">
+        My <span>Portfolio</span>
+    </div>
+
+    <div class="statsGrid">
+
+        <div class="statCard">
+            <div class="statLabel">
+                Equity
+            </div>
+
+            <div
+                id="equityValue"
+                class="statValue">
+                0
+            </div>
+        </div>
+
+
+        <div class="statCard">
+            <div class="statLabel">
+                Your Balance
+            </div>
+
+            <div
+                id="balanceValue"
+                class="statValue">
+                0
+            </div>
+        </div>
+
+
+        <div class="statCard">
+            <div class="statLabel">
+                Income
+            </div>
+
+            <div
+                id="incomeValue"
+                class="statValue">
+                0
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="chartGrid">
+
+        <div class="chartBox">
+
+            <div class="sectionHeader">
+                <h3>Portfolio</h3>
+                <span id="barCurrency">USD</span>
+            </div>
+
+            <canvas id="barChart"></canvas>
+
+        </div>
+
+
+        <div class="chartBox">
+
+            <div class="sectionHeader">
+                <h3>Performance</h3>
+            </div>
+
+            <div class="ratioArea">
+
+                <canvas
+                    id="ratioChart"
+                    class="ratioCanvas">
+                </canvas>
+
+                <div class="ratioText">
+
+                    <strong id="ratioValue">
+                        0%
+                    </strong>
+
+                    <span>
+                        Ratio
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="sectionBox">
+
+        <div class="sectionHeader">
+
+            <h3>
+                Your Progress
+            </h3>
+
+            <span id="progressText">
+                0%
+            </span>
+
+        </div>
+
+        <div class="progressChart">
+
+            <canvas id="progressChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <div class="sectionBox">
+
+        <div class="sectionHeader">
+
+            <h3>
+                Trading Overview
+            </h3>
+
+            <span id="totalTrades">
+                0 Trades
+            </span>
+
+        </div>
+
+        <div class="statsGrid">
+
+            <div class="statCard">
+
+                <div class="statLabel">
+                    Winning
+                </div>
+
+                <div
+                    id="winningTrades"
+                    class="statValue green">
+                    0
+                </div>
+
+            </div>
+
+            <div class="statCard">
+
+                <div class="statLabel">
+                    Losing
+                </div>
+
+                <div
+                    id="losingTrades"
+                    class="statValue">
+                    0
+                </div>
+
+            </div>
+
+            <div class="statCard">
+
+                <div class="statLabel">
+                    Win Rate
+                </div>
+
+                <div
+                    id="winRate"
+                    class="statValue">
+                    0%
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     JOURNAL
+========================= -->
+
+<section
+    id="journalPage"
+    class="page">
+
+    <div class="pageTitle">
+        Trading <span>Journal</span>
+    </div>
+
+    <button
+        class="primaryButton"
+        onclick="openJournalModal()">
+
+        + New Income
+
+    </button>
+
+    <div id="journalList"
+         class="journalList">
+    </div>
+
+</section>
+
+
+<!-- =========================
+     WALLET
+========================= -->
+
+<section
+    id="walletPage"
+    class="page">
+
+    <div class="pageTitle">
+        <span>Wallet</span>
+    </div>
+
+
+    <div class="walletHero">
+
+        <div class="currencyLabel">
+            CURRENT BALANCE
+        </div>
+
+        <div
+            id="walletBalance"
+            class="walletBalance">
+            0
+        </div>
+
+        <div
+            id="walletCurrency"
+            class="walletCurrency">
+            USD
+        </div>
+
+
+        <div class="walletButtons">
+
+            <button
+                class="depositBtn"
+                onclick="openMoneyModal('deposit')">
+                Deposit
+            </button>
+
+            <button
+                class="withdrawBtn"
+                onclick="openMoneyModal('withdraw')">
+                Withdraw
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="currencyButton"
+        onclick="openCurrencyModal()">
+
+        Currency:
+        <span id="currencyButtonText">
+            USD
+        </span>
+
+    </button>
+
+
+    <!-- ACCOUNT GROWTH -->
+
+    <div class="sectionBox">
+
+        <div class="sectionHeader">
+
+            <h3>
+                Account Growth
+            </h3>
+
+            <span>
+                Based on Ratio
+            </span>
+
+        </div>
+
+        <div
+            id="growthPercent"
+            class="growthPercent">
+            0%
+        </div>
+
+        <div class="growthBar">
+
+            <span
+                id="growthBarFill">
+            </span>
+
+        </div>
+
+        <div
+            id="tierName"
+            class="tierName">
+            Tier 1 — Beginner
+        </div>
+
+        <div
+            id="tierDescription"
+            class="tierDescription">
+            0% - 10%
+        </div>
+
+    </div>
+
+
+    <!-- TIER LIST -->
+
+    <div class="sectionBox">
+
+        <div class="sectionHeader">
+
+            <h3>
+                Tier System
+            </h3>
+
+        </div>
+
+        <div class="tierDescription"
+             style="line-height:2">
+
+            <div>
+                <b style="color:#39ff14">
+                    Tier 1
+                </b>
+                — 0% - 10% Beginner
+            </div>
+
+            <div>
+                <b style="color:#39ff14">
+                    Tier 2
+                </b>
+                — 11% - 30% Consistent Learner
+            </div>
+
+            <div>
+                <b style="color:#39ff14">
+                    Tier 3
+                </b>
+                — 31% - 60% Market Navigator
+            </div>
+
+            <div>
+                <b style="color:#39ff14">
+                    Tier 4
+                </b>
+                — 61% - 80% Pro Trader
+            </div>
+
+            <div>
+                <b style="color:#39ff14">
+                    Tier 5
+                </b>
+                — 81% - 100% Master Fund Manager
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- =========================
+     BOTTOM NAV
+========================= -->
+
+<nav class="bottomNav">
+
+    <button
+        id="navPortfolio"
+        class="navButton active"
+        onclick="showPage('portfolio')">
+
+        <span class="navIcon">
+            ▥
+        </span>
+
+        Portfolio
+
+    </button>
+
+
+    <button
+        id="navJournal"
+        class="navButton"
+        onclick="showPage('journal')">
+
+        <span class="navIcon">
+            ＋
+        </span>
+
+        Journal
+
+    </button>
+
+
+    <button
+        id="navWallet"
+        class="navButton"
+        onclick="showPage('wallet')">
+
+        <span class="navIcon">
+            ◉
+        </span>
+
+        Wallet
+
+    </button>
+
+</nav>
+
+</div>
+
+
+<!-- =========================
+     JOURNAL MODAL
+========================= -->
+
+<div
+    id="journalModal"
+    class="modal">
+
+    <div class="modalBox">
+
+        <div class="modalTitle">
+            New <span>Income</span>
+        </div>
+
+
+        <div class="formGroup">
+
+            <label>
+                Date
+            </label>
+
+            <input
+                id="journalDate"
+                type="date">
+
+        </div>
+
+
+        <div class="formGroup">
+
+            <label>
+                Pair
+            </label>
+
+            <input
+                id="journalPair"
+                type="text"
+                placeholder="BTC/USDT, EUR/USD, XAU/USD">
+
+        </div>
+
+
+        <div class="formRow">
+
+            <div class="formGroup">
+
+                <label>
+                    Lot
+                </label>
+
+                <input
+                    id="journalLot"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.01">
+
+            </div>
+
+
+            <div class="formGroup">
+
+                <label>
+                    Direction
+                </label>
+
+                <select id="journalDirection">
+
+                    <option value="Long">
+                        Long
+                    </option>
+
+                    <option value="Short">
+                        Short
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- ENTRY -->
+
+        <div class="formGroup">
+
+            <label>
+                Entry Position
+            </label>
+
+            <div class="requiredChoice">
+
+                <button
+                    id="entryYes"
+                    class="choiceBtn"
+                    onclick="selectRequirement('entry','yes')">
+                    Yes
+                </button>
+
+                <button
+                    id="entryNo"
+                    class="choiceBtn selected"
+                    onclick="selectRequirement('entry','no')">
+                    No
+                </button>
+
+            </div>
+
+            <input
+                id="entryValue"
+                type="number"
+                step="any"
+                placeholder="Entry Position"
+                style="margin-top:7px;display:none">
+
+        </div>
+
+
+        <!-- TAKE PROFIT -->
+
+        <div class="formGroup">
+
+            <label>
+                Take Profit
+            </label>
+
+            <div class="requiredChoice">
+
+                <button
+                    id="tpYes"
+                    class="choiceBtn"
+                    onclick="selectRequirement('tp','yes')">
+                    Yes
+                </button>
+
+                <button
+                    id="tpNo"
+                    class="choiceBtn selected"
+                    onclick="selectRequirement('tp','no')">
+                    No
+                </button>
+
+            </div>
+
+            <input
+                id="tpValue"
+                type="number"
+                step="any"
+                placeholder="Take Profit"
+                style="margin-top:7px;display:none">
+
+        </div>
+
+
+        <!-- STOP LOSS -->
+
+        <div class="formGroup">
+
+            <label>
+                Stop Loss
+            </label>
+
+            <div class="requiredChoice">
+
+                <button
+                    id="slYes"
+                    class="choiceBtn"
+                    onclick="selectRequirement('sl','yes')">
+                    Yes
+                </button>
+
+                <button
+                    id="slNo"
+                    class="choiceBtn selected"
+                    onclick="selectRequirement('sl','no')">
+                    No
+                </button>
+
+            </div>
+
+            <input
+                id="slValue"
+                type="number"
+                step="any"
+                placeholder="Stop Loss"
+                style="margin-top:7px;display:none">
+
+        </div>
+
+
+        <div class="formGroup">
+
+            <label>
+                Profit & Loss
+            </label>
+
+            <input
+                id="journalPnL"
+                type="number"
+                step="any"
+                placeholder="Contoh: 25 atau -10">
+
+        </div>
+
+
+        <div class="modalActions">
+
+            <button
+                class="cancelBtn"
+                onclick="closeModal('journalModal')">
+                Cancel
+            </button>
+
+            <button
+                class="confirmBtn"
+                onclick="saveJournal()">
+                Save Journal
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     MONEY MODAL
+========================= -->
+
+<div
+    id="moneyModal"
+    class="modal">
+
+    <div class="modalBox">
+
+        <div
+            id="moneyTitle"
+            class="modalTitle">
+            Deposit
+        </div>
+
+        <div class="formGroup">
+
+            <label>
+                Amount
+            </label>
+
+            <input
+                id="moneyAmount"
+                type="number"
+                step="any"
+                placeholder="0">
+
+        </div>
+
+        <div class="modalActions">
+
+            <button
+                class="cancelBtn"
+                onclick="closeModal('moneyModal')">
+                Cancel
+            </button>
+
+            <button
+                class="confirmBtn"
+                onclick="saveMoney()">
+                Confirm
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CURRENCY MODAL
+========================= -->
+
+<div
+    id="currencyModal"
+    class="modal">
+
+    <div class="modalBox">
+
+        <div class="modalTitle">
+            Select <span>Currency</span>
+        </div>
+
+
+        <div class="currencyList">
+
+            <button
+                class="currencyOption"
+                onclick="changeCurrency('USD')">
+
+                <strong>USD</strong>
+                US Dollar
+
+            </button>
+
+
+            <button
+                class="currencyOption"
+                onclick="changeCurrency('IDR')">
+
+                <strong>IDR</strong>
+                Rupiah Indonesia
+
+            </button>
+
+
+            <button
+                class="currencyOption"
+                onclick="changeCurrency('EUR')">
+
+                <strong>EUR</strong>
+                Euro
+
+            </button>
+
+
+            <button
+                class="currencyOption"
+                onclick="changeCurrency('JPY')">
+
+                <strong>JPY</strong>
+                Yen Japan
+
+            </button>
+
+
+            <button
+                class="currencyOption"
+                onclick="changeCurrency('GBP')">
+
+                <strong>GBP</strong>
+                Pound Sterling English
+
+            </button>
+
+
+            <button
+                class="currencyOption"
+                onclick="changeCurrency('USDT')">
+
+                <strong>USDT</strong>
+                US Dollar Tether
+
+            </button>
+
+
+            <button
+                class="currencyOption"
+                onclick="changeCurrency('BTC')">
+
+                <strong>BTC</strong>
+                Bitcoin
+
+            </button>
+
+        </div>
+
+
+        <div class="modalActions">
+
+            <button
+                class="cancelBtn"
+                onclick="closeModal('currencyModal')">
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     LEVEL MODAL
+========================= -->
+
+<div
+    id="levelModal"
+    class="modal levelModal">
+
+    <div class="modalBox">
+
+        <div
+            id="levelTitle"
+            class="levelTitle">
+            Congratulations!!
+        </div>
+
+        <div
+            id="levelMessage"
+            class="levelMessage">
+        </div>
+
+        <div
+            id="levelTier"
+            class="levelTier">
+        </div>
+
+        <button
+            class="closeLevel"
+            onclick="closeModal('levelModal')">
+            Continue
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
+
+let currentUser = null;
+
+let activeMoneyAction = "deposit";
+
+let requirementState = {
+    entry:"no",
+    tp:"no",
+    sl:"no"
+};
+
+const CURRENCIES = [
+    "USD",
+    "IDR",
+    "EUR",
+    "JPY",
+    "GBP",
+    "USDT",
+    "BTC"
+];
+
+
+/* =========================================================
+   USER DATABASE
+========================================================= */
+
+function getUsers(){
+
+    return JSON.parse(
+        localStorage.getItem("makroFX_users") || "{}"
+    );
+
+}
+
+
+function saveUsers(users){
+
+    localStorage.setItem(
+        "makroFX_users",
+        JSON.stringify(users)
+    );
+
+}
+
+
+/* =========================================================
+   DEFAULT USER DATA
+========================================================= */
+
+function defaultCurrencyData(){
+
+    return {
+        balance:0,
+        journals:[],
+        growth:0,
+        tier:1,
+        progress:[]
+    };
+
+}
+
+
+function defaultUser(){
+
+    let currencies = {};
+
+    CURRENCIES.forEach(currency=>{
+        currencies[currency] = defaultCurrencyData();
+    });
+
+    return {
+        currencies:currencies
+    };
+
+}
+
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+function showAuth(type){
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const signupForm =
+        document.getElementById("signupForm");
+
+    const loginTab =
+        document.getElementById("loginTab");
+
+    const signupTab =
+        document.getElementById("signupTab");
+
+    if(type === "login"){
+
+        loginForm.style.display="block";
+        signupForm.style.display="none";
+
+        loginTab.classList.add("active");
+        signupTab.classList.remove("active");
+
+    }else{
+
+        loginForm.style.display="none";
+        signupForm.style.display="block";
+
+        loginTab.classList.remove("active");
+        signupTab.classList.add("active");
+
+    }
+
+    document.getElementById("authMessage").textContent="";
+
+}
+
+
+function signup(){
+
+    const username =
+        document.getElementById("signupUsername")
+        .value.trim();
+
+    const password =
+        document.getElementById("signupPassword")
+        .value;
+
+    const password2 =
+        document.getElementById("signupPassword2")
+        .value;
+
+    const message =
+        document.getElementById("authMessage");
+
+
+    if(!username || !password){
+
+        message.style.color="#ff5555";
+        message.textContent=
+            "Username dan password wajib diisi.";
+
+        return;
+
+    }
+
+
+    if(password !== password2){
+
+        message.style.color="#ff5555";
+        message.textContent=
+            "Password tidak sama.";
+
+        return;
+
+    }
+
+
+    const users = getUsers();
+
+
+    if(users[username]){
+
+        message.style.color="#ff5555";
+        message.textContent=
+            "Username sudah digunakan.";
+
+        return;
+
+    }
+
+
+    users[username] = {
+        password:password,
+        data:defaultUser()
+    };
+
+
+    saveUsers(users);
+
+
+    message.style.color="#39ff14";
+    message.textContent=
+        "Akun berhasil dibuat. Silakan Sign In.";
+
+    document.getElementById("signupUsername").value="";
+    document.getElementById("signupPassword").value="";
+    document.getElementById("signupPassword2").value="";
+
+    setTimeout(()=>{
+        showAuth("login");
+    },700);
+
+}
+
+
+function login(){
+
+    const username =
+        document.getElementById("loginUsername")
+        .value.trim();
+
+    const password =
+        document.getElementById("loginPassword")
+        .value;
+
+    const message =
+        document.getElementById("authMessage");
+
+    const users = getUsers();
+
+
+    if(!users[username]){
+
+        message.style.color="#ff5555";
+        message.textContent=
+            "Username tidak ditemukan.";
+
+        return;
+
+    }
+
+
+    if(users[username].password !== password){
+
+        message.style.color="#ff5555";
+        message.textContent=
+            "Password salah.";
+
+        return;
+
+    }
+
+
+    currentUser = username;
+
+    localStorage.setItem(
+        "makroFX_loggedUser",
+        username
+    );
+
+    openApp();
+
+}
+
+
+function logout(){
+
+    localStorage.removeItem(
+        "makroFX_loggedUser"
+    );
+
+    currentUser=null;
+
+    document.getElementById("app").style.display="none";
+    document.getElementById("authPage").style.display="flex";
+
+}
+
+
+function openApp(){
+
+    document.getElementById("authPage").style.display="none";
+    document.getElementById("app").style.display="block";
+
+    document.getElementById("headerUsername").textContent=
+        currentUser;
+
+    updateAll();
+
+}
+
+
+/* =========================================================
+   CURRENT USER DATA
+========================================================= */
+
+function getUserObject(){
+
+    const users = getUsers();
+
+    return users[currentUser];
+
+}
+
+
+function saveCurrentUserData(data){
+
+    const users = getUsers();
+
+    users[currentUser].data=data;
+
+    saveUsers(users);
+
+}
+
+
+function getCurrencyData(){
+
+    const user =
+        getUserObject();
+
+    const currency =
+        getCurrentCurrency();
+
+    if(!user.data.currencies[currency]){
+
+        user.data.currencies[currency]=
+            defaultCurrencyData();
+
+        saveCurrentUserData(user.data);
+
+    }
+
+    return user.data.currencies[currency];
+
+}
+
+
+function getCurrentCurrency(){
+
+    const user =
+        getUserObject();
+
+    return user.data.currentCurrency || "USD";
+
+}
+
+
+/* =========================================================
+   PAGE NAVIGATION
+========================================================= */
+
+function showPage(page){
+
+    document.querySelectorAll(".page")
+        .forEach(el=>{
+            el.classList.remove("active");
+        });
+
+    document.querySelectorAll(".navButton")
+        .forEach(el=>{
+            el.classList.remove("active");
+        });
+
+
+    if(page==="portfolio"){
+
+        document.getElementById("portfolioPage")
+            .classList.add("active");
+
+        document.getElementById("navPortfolio")
+            .classList.add("active");
+
+    }
+
+
+    if(page==="journal"){
+
+        document.getElementById("journalPage")
+            .classList.add("active");
+
+        document.getElementById("navJournal")
+            .classList.add("active");
+
+    }
+
+
+    if(page==="wallet"){
+
+        document.getElementById("walletPage")
+            .classList.add("active");
+
+        document.getElementById("navWallet")
+            .classList.add("active");
+
+    }
+
+
+    updateAll();
+
+}
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+function closeModal(id){
+
+    document.getElementById(id)
+        .classList.remove("show");
+
+}
+
+
+function openJournalModal(){
+
+    document.getElementById("journalModal")
+        .classList.add("show");
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    document.getElementById("journalDate").value=
+        today;
+
+}
+
+
+function openMoneyModal(action){
+
+    activeMoneyAction=action;
+
+    document.getElementById("moneyTitle").textContent=
+        action==="deposit"
+        ? "Deposit"
+        : "Withdraw";
+
+    document.getElementById("moneyAmount").value="";
+
+    document.getElementById("moneyModal")
+        .classList.add("show");
+
+}
+
+
+function openCurrencyModal(){
+
+    document.getElementById("currencyModal")
+        .classList.add("show");
+
+}
+
+
+/* =========================================================
+   JOURNAL REQUIREMENTS
+========================================================= */
+
+function selectRequirement(type,value){
+
+    requirementState[type]=value;
+
+
+    const yesButton =
+        document.getElementById(type+"Yes");
+
+    const noButton =
+        document.getElementById(type+"No");
+
+    const input =
+        document.getElementById(
+            type==="entry"
+            ? "entryValue"
+            : type==="tp"
+            ? "tpValue"
+            : "slValue"
+        );
+
+
+    yesButton.classList.remove("selected");
+    noButton.classList.remove("selected");
+
+
+    if(value==="yes"){
+
+        yesButton.classList.add("selected");
+
+        input.style.display="block";
+
+    }else{
+
+        noButton.classList.add("selected");
+
+        input.style.display="none";
+        input.value="";
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE JOURNAL
+========================================================= */
+
+function saveJournal(){
+
+    const date =
+        document.getElementById("journalDate").value;
+
+    const pair =
+        document.getElementById("journalPair").value.trim();
+
+    const lot =
+        parseFloat(
+            document.getElementById("journalLot").value
+        ) || 0;
+
+    const direction =
+        document.getElementById("journalDirection").value;
+
+    const pnl =
+        parseFloat(
+            document.getElementById("journalPnL").value
+        );
+
+
+    if(!date || !pair || isNaN(pnl)){
+
+        alert(
+            "Date, Pair, dan Profit & Loss wajib diisi."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        requirementState.entry==="yes" &&
+        document.getElementById("entryValue").value===""
+    ){
+
+        alert("Entry Position wajib diisi.");
+
+        return;
+
+    }
+
+
+    if(
+        requirementState.tp==="yes" &&
+        document.getElementById("tpValue").value===""
+    ){
+
+        alert("Take Profit wajib diisi.");
+
+        return;
+
+    }
+
+
+    if(
+        requirementState.sl==="yes" &&
+        document.getElementById("slValue").value===""
+    ){
+
+        alert("Stop Loss wajib diisi.");
+
+        return;
+
+    }
+
+
+    const data =
+        getCurrencyData();
+
+
+    const journal = {
+
+        id:Date.now(),
+
+        date:date,
+
+        pair:pair,
+
+        lot:lot,
+
+        direction:direction,
+
+        entry:
+            requirementState.entry==="yes"
+            ? parseFloat(
+                document.getElementById("entryValue").value
+              )
+            : null,
+
+        takeProfit:
+            requirementState.tp==="yes"
+            ? parseFloat(
+                document.getElementById("tpValue").value
+              )
+            : null,
+
+        stopLoss:
+            requirementState.sl==="yes"
+            ? parseFloat(
+                document.getElementById("slValue").value
+              )
+            : null,
+
+        pnl:pnl
+
+    };
+
+
+    const oldTier =
+        calculateTier(data.growth);
+
+
+    data.journals.push(journal);
+
+    data.balance += pnl;
+
+    data.growth =
+        calculateGrowth(data);
+
+
+    const newTier =
+        calculateTier(data.growth);
+
+
+    data.progress.push({
+        time:Date.now(),
+        value:data.growth
+    });
+
+
+    if(data.progress.length > 50){
+
+        data.progress =
+            data.progress.slice(-50);
+
+    }
+
+
+    data.tier=newTier;
+
+
+    const user =
+        getUserObject();
+
+    saveCurrentUserData(user.data);
+
+
+    closeModal("journalModal");
+
+    resetJournalForm();
+
+    updateAll();
+
+
+    if(newTier > oldTier){
+
+        setTimeout(()=>{
+
+            showLevelPopup(
+                "Congratulations!!",
+                "You leveled up",
+                getTierName(newTier),
+                false
+            );
+
+        },250);
+
+    }
+    else if(newTier < oldTier){
+
+        setTimeout(()=>{
+
+            showLevelPopup(
+                "You Loser!",
+                "You need to be consistent and discipline again!",
+                getTierName(newTier),
+                true
+            );
+
+        },250);
+
+    }
+
+}
+
+
+/* =========================================================
+   RESET JOURNAL
+========================================================= */
+
+function resetJournalForm(){
+
+    document.getElementById("journalPair").value="";
+    document.getElementById("journalLot").value="";
+    document.getElementById("journalPnL").value="";
+
+    requirementState={
+        entry:"no",
+        tp:"no",
+        sl:"no"
+    };
+
+
+    selectRequirement("entry","no");
+    selectRequirement("tp","no");
+    selectRequirement("sl","no");
+
+}
+
+
+/* =========================================================
+   GROWTH CALCULATION
+========================================================= */
+
+function calculateGrowth(data){
+
+    if(!data.journals.length){
+
+        return 0;
+
+    }
+
+
+    let totalPnL=0;
+
+    data.journals.forEach(j=>{
+        totalPnL += Number(j.pnl) || 0;
+    });
+
+
+    const baseCapital =
+        Math.max(
+            100,
+            Math.abs(totalPnL) * 4
+        );
+
+
+    let growth =
+        (totalPnL / baseCapital) * 100;
+
+
+    const trades =
+        data.journals.length;
+
+    const consistencyBonus =
+        Math.min(
+            trades * 1.5,
+            20
+        );
+
+
+    if(totalPnL > 0){
+
+        growth += consistencyBonus;
+
+    }else{
+
+        growth -= consistencyBonus * .5;
+
+    }
+
+
+    if(trades < 3 && growth > 30){
+
+        growth=30;
+
+    }
+
+
+    growth =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                growth
+            )
+        );
+
+
+    return Number(
+        growth.toFixed(2)
+    );
+
+}
+
+
+/* =========================================================
+   TIER
+========================================================= */
+
+function calculateTier(growth){
+
+    if(growth <= 10)
+        return 1;
+
+    if(growth <= 30)
+        return 2;
+
+    if(growth <= 60)
+        return 3;
+
+    if(growth <= 80)
+        return 4;
+
+    return 5;
+
+}
+
+
+function getTierName(tier){
+
+    const names={
+        1:"Tier 1 — Beginner",
+        2:"Tier 2 — Consistent Learner",
+        3:"Tier 3 — Market Navigator",
+        4:"Tier 4 — Pro Trader",
+        5:"Tier 5 — Master Fund Manager"
+    };
+
+    return names[tier];
+
+}
+
+
+function getTierDescription(tier){
+
+    const descriptions={
+        1:"0% - 10%",
+        2:"11% - 30%",
+        3:"31% - 60%",
+        4:"61% - 80%",
+        5:"81% - 100%"
+    };
+
+    return descriptions[tier];
+
+}
+
+
+/* =========================================================
+   LEVEL POPUP
+========================================================= */
+
+function showLevelPopup(
+    title,
+    message,
+    tier,
+    loser=false
+){
+
+    const titleElement =
+        document.getElementById("levelTitle");
+
+    const messageElement =
+        document.getElementById("levelMessage");
+
+    const tierElement =
+        document.getElementById("levelTier");
+
+
+    titleElement.textContent=title;
+
+    messageElement.textContent=message;
+
+    tierElement.textContent=tier;
+
+
+    if(loser){
+
+        titleElement.style.textShadow=
+            "0 0 7px #39ff14,0 0 20px #39ff14";
+
+    }else{
+
+        titleElement.style.textShadow=
+            "0 0 7px #39ff14,0 0 20px #39ff14,0 0 35px #39ff14";
+
+    }
+
+
+    document.getElementById("levelModal")
+        .classList.add("show");
+
+}
+
+
+/* =========================================================
+   MONEY
+========================================================= */
+
+function saveMoney(){
+
+    const amount =
+        parseFloat(
+            document.getElementById("moneyAmount").value
+        );
+
+
+    if(isNaN(amount) || amount<=0){
+
+        alert("Masukkan nominal yang valid.");
+
+        return;
+
+    }
+
+
+    const data =
+        getCurrencyData();
+
+
+    if(activeMoneyAction==="deposit"){
+
+        data.balance += amount;
+
+    }else{
+
+        if(amount > data.balance){
+
+            alert("Balance tidak mencukupi.");
+
+            return;
+
+        }
+
+        data.balance -= amount;
+
+    }
+
+
+    const user =
+        getUserObject();
+
+    saveCurrentUserData(user.data);
+
+
+    closeModal("moneyModal");
+
+    updateAll();
+
+}
+
+
+/* =========================================================
+   CURRENCY
+========================================================= */
+
+function changeCurrency(currency){
+
+    const user =
+        getUserObject();
+
+
+    if(!user.data.currencies[currency]){
+
+        user.data.currencies[currency]=
+            defaultCurrencyData();
+
+    }
+
+
+    user.data.currentCurrency=
+        currency;
+
+
+    saveCurrentUserData(user.data);
+
+
+    closeModal("currencyModal");
+
+    updateAll();
+
+
+    showPage("wallet");
+
+}
+
+
+/* =========================================================
+   DELETE JOURNAL
+========================================================= */
+
+function deleteJournal(id){
+
+    const data =
+        getCurrencyData();
+
+
+    const index =
+        data.journals.findIndex(
+            journal=>journal.id===id
+        );
+
+
+    if(index===-1)
+        return;
+
+
+    const journal =
+        data.journals[index];
+
+
+    data.balance -=
+        Number(journal.pnl) || 0;
+
+
+    data.journals.splice(index,1);
+
+
+    data.growth =
+        calculateGrowth(data);
+
+
+    data.tier =
+        calculateTier(data.growth);
+
+
+    data.progress.push({
+        time:Date.now(),
+        value:data.growth
+    });
+
+
+    const user =
+        getUserObject();
+
+    saveCurrentUserData(user.data);
+
+
+    updateAll();
+
+}
+
+
+/* =========================================================
+   FORMAT MONEY
+========================================================= */
+
+function formatMoney(value){
+
+    const currency =
+        getCurrentCurrency();
+
+
+    let decimals=2;
+
+
+    if(currency==="IDR" ||
+       currency==="JPY"){
+
+        decimals=0;
+
+    }
+
+
+    if(currency==="BTC"){
+
+        decimals=8;
+
+    }
+
+
+    return new Intl.NumberFormat(
+        "en-US",
+        {
+            minimumFractionDigits:decimals,
+            maximumFractionDigits:decimals
+        }
+    ).format(value || 0);
+
+}
+
+
+/* =========================================================
+   UPDATE EVERYTHING
+========================================================= */
+
+function updateAll(){
+
+    if(!currentUser)
+        return;
+
+
+    const data =
+        getCurrencyData();
+
+
+    const currency =
+        getCurrentCurrency();
+
+
+    const totalIncome =
+        data.journals.reduce(
+            (sum,j)=>sum+(Number(j.pnl)||0),
+            0
+        );
+
+
+    const equity =
+        data.balance;
+
+
+    document.getElementById("equityValue")
+        .textContent=
+        formatMoney(equity)+" "+currency;
+
+
+    document.getElementById("balanceValue")
+        .textContent=
+        formatMoney(data.balance)+" "+currency;
+
+
+    document.getElementById("incomeValue")
+        .textContent=
+        formatMoney(totalIncome)+" "+currency;
+
+
+    document.getElementById("walletBalance")
+        .textContent=
+        formatMoney(data.balance);
+
+
+    document.getElementById("walletCurrency")
+        .textContent=currency;
+
+
+    document.getElementById("currencyButtonText")
+        .textContent=currency;
+
+
+    document.getElementById("barCurrency")
+        .textContent=currency;
+
+
+    updateGrowth(data);
+
+    updateJournals(data);
+
+    updateCharts(data);
+
+}
+
+
+/* =========================================================
+   UPDATE GROWTH
+========================================================= */
+
+function updateGrowth(data){
+
+    const growth =
+        Number(data.growth)||0;
+
+    const tier =
+        calculateTier(growth);
+
+
+    document.getElementById("growthPercent")
+        .textContent=
+        growth.toFixed(1)+"%";
+
+
+    document.getElementById("growthBarFill")
+        .style.width=
+        growth+"%";
+
+
+    document.getElementById("tierName")
+        .textContent=
+        getTierName(tier);
+
+
+    document.getElementById("tierDescription")
+        .textContent=
+        getTierDescription(tier);
+
+
+    document.getElementById("progressText")
+        .textContent=
+        growth.toFixed(1)+"%";
+
+}
+
+
+/* =========================================================
+   JOURNAL LIST
+========================================================= */
+
+function updateJournals(data){
+
+    const container =
+        document.getElementById("journalList");
+
+
+    if(!data.journals.length){
+
+        container.innerHTML=`
+            <div class="empty">
+
+                <strong>
+                    Belum ada jurnal
+                </strong>
+
+                Buat jurnal trading pertama kamu
+                melalui tombol New Income.
+
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const journals =
+        [...data.journals].reverse();
+
+
+    container.innerHTML =
+        journals.map(journal=>{
+
+            const pnl =
+                Number(journal.pnl)||0;
+
+            const pnlClass =
+                pnl>=0
+                ? "green"
+                : "";
+
+
+            return `
+
+            <div class="journalCard">
+
+                <div class="journalTop">
+
+                    <div class="journalPair">
+                        ${escapeHTML(journal.pair)}
+                    </div>
+
+                    <div class="journalDate">
+                        ${escapeHTML(journal.date)}
+                    </div>
+
+                </div>
+
+
+                <div class="journalInfo">
+
+                    <div>
+                        <span>Direction</span>
+                        ${journal.direction}
+                    </div>
+
+                    <div>
+                        <span>Lot</span>
+                        ${journal.lot}
+                    </div>
+
+                    <div>
+                        <span>Entry</span>
+                        ${
+                            journal.entry===null
+                            ? "No"
+                            : journal.entry
+                        }
+                    </div>
+
+                    <div>
+                        <span>Take Profit</span>
+                        ${
+                            journal.takeProfit===null
+                            ? "No"
+                            : journal.takeProfit
+                        }
+                    </div>
+
+                    <div>
+                        <span>Stop Loss</span>
+                        ${
+                            journal.stopLoss===null
+                            ? "No"
+                            : journal.stopLoss
+                        }
+                    </div>
+
+                    <div>
+                        <span>Profit & Loss</span>
+
+                        <b class="${pnlClass}">
+                            ${pnl>=0?"+":""}${formatMoney(pnl)}
+                        </b>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="deleteJournal"
+                    onclick="deleteJournal(${journal.id})">
+
+                    Hapus Jurnal
+
+                </button>
+
+            </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(text){
+
+    return String(text)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+function updateCharts(data){
+
+    drawBarChart(data);
+
+    drawRatioChart(data);
+
+    drawProgressChart(data);
+
+}
+
+
+/* =========================================================
+   BAR CHART
+========================================================= */
+
+function drawBarChart(data){
+
+    const canvas =
+        document.getElementById("barChart");
+
+    const ctx =
+        canvas.getContext("2d");
+
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    canvas.width =
+        rect.width * window.devicePixelRatio;
+
+    canvas.height =
+        rect.height * window.devicePixelRatio;
+
+
+    ctx.scale(
+        window.devicePixelRatio,
+        window.devicePixelRatio
+    );
+
+
+    const width=rect.width;
+    const height=rect.height;
+
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const values=[
+        Math.max(0,data.balance),
+        Math.max(
+            0,
+            data.journals.reduce(
+                (s,j)=>s+(Number(j.pnl)||0),
+                0
+            )
+        ),
+        Math.max(0,data.balance)
+    ];
+
+
+    const maxValue =
+        Math.max(
+            1,
+            ...values
+        );
+
+
+    const labels=[
+        "Balance",
+        "Income",
+        "Equity"
+    ];
+
+
+    const barWidth =
+        Math.min(
+            45,
+            width/6
+        );
+
+
+    const gap =
+        width/7;
+
+
+    values.forEach((value,index)=>{
+
+        const x =
+            gap +
+            index*(barWidth+gap);
+
+
+        const barHeight =
+            (value/maxValue)*
+            (height-55);
+
+
+        const y =
+            height-35-barHeight;
+
+
+        ctx.fillStyle="#39ff14";
+
+        ctx.shadowColor="#39ff14";
+        ctx.shadowBlur=12;
+
+        ctx.fillRect(
+            x,
+            y,
+            barWidth,
+            barHeight
+        );
+
+
+        ctx.shadowBlur=0;
+
+        ctx.fillStyle="#777";
+
+        ctx.font="9px Arial";
+
+        ctx.textAlign="center";
+
+        ctx.fillText(
+            labels[index],
+            x+barWidth/2,
+            height-12
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   RATIO CHART
+========================================================= */
+
+function drawRatioChart(data){
+
+    const canvas =
+        document.getElementById("ratioChart");
+
+    const ctx =
+        canvas.getContext("2d");
+
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    canvas.width =
+        rect.width * window.devicePixelRatio;
+
+    canvas.height =
+        rect.height * window.devicePixelRatio;
+
+
+    ctx.scale(
+        window.devicePixelRatio,
+        window.devicePixelRatio
+    );
+
+
+    const width=rect.width;
+    const height=rect.height;
+
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const cx=width/2;
+    const cy=height/2;
+
+    const radius=
+        Math.min(width,height)/2-10;
+
+
+    const growth =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                data.growth
+            )
+        );
+
+
+    const start=-Math.PI/2;
+
+    const end=
+        start+
+        (Math.PI*2)*
+        (growth/100);
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx,
+        cy,
+        radius,
+        0,
+        Math.PI*2
+    );
+
+    ctx.strokeStyle="#161616";
+    ctx.lineWidth=13;
+
+    ctx.stroke();
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx,
+        cy,
+        radius,
+        start,
+        end
+    );
+
+    ctx.strokeStyle="#39ff14";
+    ctx.lineWidth=13;
+
+    ctx.shadowColor="#39ff14";
+    ctx.shadowBlur=15;
+
+    ctx.stroke();
+
+    ctx.shadowBlur=0;
+
+
+    document.getElementById("ratioValue")
+        .textContent=
+        growth.toFixed(1)+"%";
+
+}
+
+
+/* =========================================================
+   PROGRESS LINE
+========================================================= */
+
+function drawProgressChart(data){
+
+    const canvas =
+        document.getElementById("progressChart");
+
+    const ctx =
+        canvas.getContext("2d");
+
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    canvas.width =
+        rect.width * window.devicePixelRatio;
+
+    canvas.height =
+        rect.height * window.devicePixelRatio;
+
+
+    ctx.scale(
+        window.devicePixelRatio,
+        window.devicePixelRatio
+    );
+
+
+    const width=rect.width;
+    const height=rect.height;
+
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    ctx.strokeStyle="#151515";
+    ctx.lineWidth=1;
+
+
+    for(let i=0;i<4;i++){
+
+        const y =
+            20+
+            i*((height-40)/3);
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y
+        );
+
+        ctx.lineTo(
+            width,
+            y
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    const progress =
+        data.progress.length
+        ? data.progress
+        : [{
+            value:data.growth
+        }];
+
+
+    if(progress.length===1){
+
+        progress.unshift({
+            value:0
+        });
+
+    }
+
+
+    ctx.beginPath();
+
+
+    progress.forEach((point,index)=>{
+
+        const x =
+            (index/(progress.length-1))*
+            (width-20)+10;
+
+
+        const value =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    point.value
+                )
+            );
+
+
+        const y =
+            height-
+            20-
+            (value/100)*
+            (height-40);
+
+
+        if(index===0){
+
+            ctx.moveTo(x,y);
+
+        }else{
+
+            ctx.lineTo(x,y);
+
+        }
+
+    });
+
+
+    ctx.strokeStyle="#39ff14";
+    ctx.lineWidth=3;
+
+    ctx.shadowColor="#39ff14";
+    ctx.shadowBlur=10;
+
+    ctx.stroke();
+
+    ctx.shadowBlur=0;
+
+
+    const last =
+        progress[progress.length-1];
+
+    const lastX=
+        width-10;
+
+    const lastY=
+        height-
+        20-
+        (Math.max(
+            0,
+            Math.min(
+                100,
+                last.value
+            )
+        )/100)*
+        (height-40);
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        lastX,
+        lastY,
+        4,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fillStyle="#39ff14";
+
+    ctx.shadowColor="#39ff14";
+    ctx.shadowBlur=12;
+
+    ctx.fill();
+
+    ctx.shadowBlur=0;
+
+}
+
+
+/* =========================================================
+   TRADING STATISTICS
+========================================================= */
+
+function updateTradingStats(data){
+
+    const journals =
+        data.journals;
+
+
+    const winning =
+        journals.filter(
+            j=>(Number(j.pnl)||0)>0
+        ).length;
+
+
+    const losing =
+        journals.filter(
+            j=>(Number(j.pnl)||0)<0
+        ).length;
+
+
+    const total =
+        journals.length;
+
+
+    const rate =
+        total
+        ? (winning/total)*100
+        : 0;
+
+
+    document.getElementById("winningTrades")
+        .textContent=winning;
+
+
+    document.getElementById("losingTrades")
+        .textContent=losing;
+
+
+    document.getElementById("totalTrades")
+        .textContent=
+        total+" Trades";
+
+
+    document.getElementById("winRate")
+        .textContent=
+        rate.toFixed(1)+"%";
+
+}
+
+
+/* =========================================================
+   PATCH UPDATE ALL
+========================================================= */
+
+const oldUpdateAll =
+    updateAll;
+
+updateAll=function(){
+
+    if(!currentUser)
+        return;
+
+
+    oldUpdateAll();
+
+
+    const data =
+        getCurrencyData();
+
+
+    updateTradingStats(data);
+
+};
+
+
+/* =========================================================
+   WINDOW RESIZE
+========================================================= */
+
+window.addEventListener(
+    "resize",
+    ()=>{
+        if(currentUser)
+            updateCharts(getCurrencyData());
+    }
+);
+
+
+/* =========================================================
+   CLICK OUTSIDE MODAL
+========================================================= */
+
+document.querySelectorAll(".modal")
+.forEach(modal=>{
+
+    modal.addEventListener(
+        "click",
+        function(event){
+
+            if(event.target===modal){
+
+                modal.classList.remove("show");
+
+            }
+
+        }
+    );
+
+});
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+window.addEventListener(
+    "load",
+    ()=>{
+
+        setTimeout(()=>{
+
+            document.getElementById(
+                "loadingScreen"
+            ).style.display="none";
+
+
+            const logged =
+                localStorage.getItem(
+                    "makroFX_loggedUser"
+                );
+
+
+            if(logged){
+
+                const users =
+                    getUsers();
+
+
+                if(users[logged]){
+
+                    currentUser=logged;
+
+                    openApp();
+
+                }else{
+
+                    document.getElementById(
+                        "authPage"
+                    ).style.display="flex";
+
+                }
+
+            }else{
+
+                document.getElementById(
+                    "authPage"
+                ).style.display="flex";
+
+            }
+
+        }, 4000);
+
+    }
+);
+
+</script>
+
+</body>
+</html>
